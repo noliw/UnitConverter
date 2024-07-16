@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -154,27 +156,25 @@ fun ShoppingListItem(
 ) {
     Row(
         modifier = Modifier
-            .padding(8.dp)
             .fillMaxWidth()
             .border(
                 border = BorderStroke(2.dp, Color.Red),
                 shape = RoundedCornerShape(20)
-            ),
-        horizontalArrangement = Arrangement.SpaceEvenly,
+            )
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            modifier = Modifier
-                .padding(8.dp),
+            modifier = Modifier,
             text = item.name
         )
         Text(
-            modifier = Modifier
-                .padding(8.dp),
+            modifier = Modifier,
             text = item.quantity.toString()
         )
         Row(
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier
         ) {
             IconButton(onClick = onEditClick) {
                 Icon(imageVector = Icons.Outlined.Edit, contentDescription = "")
@@ -188,15 +188,49 @@ fun ShoppingListItem(
 }
 
 @Composable
-fun ShoppingListEditor(item: ShoppingItem, onEditClick: (String, Int) -> Unit) {
+fun ShoppingListEditor(item: ShoppingItem, onEditComplete: (String, Int) -> Unit) {
     var editedName by remember { mutableStateOf(item.name) }
     var editedQuantity by remember { mutableStateOf(item.quantity.toString()) }
     var isEditing by remember { mutableStateOf(item.isEditing) }
 
-    Row (modifier = Modifier
-        .padding(8.dp)
-    ){
-
+    Row(
+        modifier = Modifier
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column {
+            TextField(
+                value = editedName,
+                onValueChange = {
+                    editedName = it
+                },
+                singleLine = true,
+                label = { Text(text = "Editing Name") },
+                modifier = Modifier
+                    .wrapContentSize()
+                    .padding(8.dp)
+            )
+            TextField(
+                value = editedQuantity,
+                onValueChange = {
+                    editedQuantity = it
+                },
+                singleLine = true,
+                label = { Text(text = "Editing Quantity") },
+                modifier = Modifier
+                    .wrapContentSize()
+                    .padding(8.dp)
+            )
+        }
+        Button(
+            onClick = {
+                isEditing = false
+                onEditComplete(editedName, editedQuantity.toIntOrNull() ?: 1)
+            }
+        ) {
+            Text(text = "Save")
+        }
     }
 }
 
@@ -217,4 +251,15 @@ fun ShoppingListItemPreview() {
     ),
         onEditClick = {},
         onDeleteClick = {})
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ShoppingListEditorPreview() {
+    ShoppingListEditor(item = ShoppingItem(
+        1,
+        "Milk",
+        2
+    ),
+        onEditComplete = { _, _ -> })
 }
